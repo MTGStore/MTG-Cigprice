@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cigarette Pricing System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f5f5f5 0%, #efefef 100%);
+            padding: 16px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .mode-selector {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            padding: 12px 24px;
+            border: 2px solid #d0d0d0;
+            background: white;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #333;
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(135deg, #2c5aa0 0%, #1a3a52 100%);
+            color: white;
+            border-color: #2c5aa0;
+        }
+
+        .mode-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1a3a52 0%, #2c5aa0 100%);
+            color: white;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.95;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.25);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e8e8e8;
+        }
+
+        .card h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a3a52;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d0d0d0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #2c5aa0;
+            box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.1);
+        }
+
+        input[type="number"] {
+            font-family: 'Courier New', monospace;
+        }
+
+        input[type="number"]:disabled {
+            background: #f5f5f5;
+            color: #999;
+            cursor: not-allowed;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        @media (max-width: 600px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2c5aa0 0%, #1a3a52 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(44, 90, 160, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+            border: 1px solid #d0d0d0;
+        }
+
+        .btn-secondary:hover {
+            background: #e8e8e8;
+        }
+
+        .display-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            border: 2px solid #e8e8e8;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .display-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a3a52;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #2c5aa0;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .price-box {
+            background: white;
+            border: 1px solid #d0d0d0;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .price-box.loyalty {
+            background: linear-gradient(135deg, #e3f2fd 0%, #f1f5ff 100%);
+            border-color: #2c5aa0;
+        }
+
+        .price-box.multipack {
+            background: linear-gradient(135deg, #f3e5f5 0%, #f8f5ff 100%);
+            border-color: #7c3aed;
+        }
+
+        .price-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .price-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a3a52;
+            margin-bottom: 8px;
+        }
+
+        .price-box.loyalty .price-value {
+            color: #2c5aa0;
+        }
+
+        .price-box.multipack .price-value {
+            color: #7c3aed;
+        }
+
+        .price-note {
+            font-size: 11px;
+            color: #666;
+            line-height: 1.4;
+            font-style: italic;
+        }
+
+        .margin-badge {
+            display: inline-block;
+            background: #e8f5e9;
+            color: #1b5e20;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .message {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            display: none;
+        }
+
+        .message.success {
+            background: #e8f5e9;
+            color: #1b5e20;
+            border: 1px solid #81c784;
+            display: block;
+        }
+
+        .message.error {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ef5350;
+            display: block;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2c5aa0;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #0d47a1;
+            margin-bottom: 16px;
+        }
+
+        .divider {
+            height: 1px;
+            background: #e8e8e8;
+            margin: 20px 0;
+        }
+
+        .current-price-display {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            font-size: 13px;
+        }
+
+        .current-price-display strong {
+            color: #1a3a52;
+            font-size: 16px;
+        }
+
+        .mode-section {
+            display: none;
+        }
+
+        .mode-section.active {
+            display: block;
+        }
+
+        .category-filter {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 6px 14px;
+            border: 1px solid #d0d0d0;
+            background: white;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #333;
+        }
+
+        .filter-btn.active {
+            background: #2c5aa0;
+            color: white;
+            border-color: #2c5aa0;
+        }
+
+        .filter-btn:hover {
+            border-color: #2c5aa0;
+        }
+
+        .search-input {
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .search-input input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d0d0d0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .brand-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+        }
+
+        .brand-item {
+            padding: 12px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand-item:hover {
+            background: #f5f5f5;
+        }
+
+        .brand-item.selected {
+            background: #e3f2fd;
+            border-left: 3px solid #2c5aa0;
+        }
+
+        .brand-name {
+            font-weight: 500;
+            color: #1a3a52;
+            font-size: 14px;
+        }
+
+        .brand-invoice {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .cost-info {
+            font-size: 12px;
+            color: #2c5aa0;
+            font-weight: 600;
+        }
+
+        .employee-display {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .employee-display .display-card {
+            border: none;
+            box-shadow: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f0f0f0;
+            border-top: 3px solid #2c5aa0;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚬 Pricing System</h1>
+            <p>Multi-store pricing, margin tracking, loyalty & multipack discounts</p>
+            <div class="badge" id="modeBadge">Select your role</div>
+        </div>
+
+        <!-- MODE SELECTOR -->
+        <div class="mode-selector">
+            <button class="mode-btn" onclick="selectMode('manager')">🔐 Manager - Edit Pricing</button>
+            <button class="mode-btn" onclick="selectMode('employee')">👁️ Employee - View Pricing</button>
+        </div>
+
+        <!-- MANAGER MODE -->
+        <div id="managerMode" class="mode-section">
+            <div class="main-content">
+                <!-- LEFT: Brand Selection & Pricing Input -->
+                <div class="card">
+                    <h2>Select Brand & Enter Pricing</h2>
+
+                    <div id="message" class="message"></div>
+
+                    <div class="form-group">
+                        <label>Store Location *</label>
+                        <select id="store" required>
+                            <option value="">-- Select Store --</option>
+                            <option value="KC Mart 09">KC Mart 09</option>
+                            <option value="KC Mart 06">KC Mart 06</option>
+                            <option value="Pats Store 2">Pats Store 2</option>
+                            <option value="HP-Vivek">HP-Vivek</option>
+                            <option value="MTG-3">MTG-3</option>
+                            <option value="MTG-5">MTG-5</option>
+                            <option value="QuickStop">QuickStop</option>
+                            <option value="SQS">SQS</option>
+                            <option value="Hi Cotton">Hi Cotton</option>
+                        </select>
+                    </div>
+
+                    <div class="search-input">
+                        <input type="text" id="brandSearch" placeholder="🔍 Search brand name..." onkeyup="filterBrands()">
+                    </div>
+
+                    <div class="category-filter">
+                        <button class="filter-btn active" onclick="filterByCategory('all')">All</button>
+                        <button class="filter-btn" onclick="filterByCategory('cigarettes')">🚬 Cigarettes</button>
+                        <button class="filter-btn" onclick="filterByCategory('dip')">🥫 Dip</button>
+                        <button class="filter-btn" onclick="filterByCategory('ecig')">💨 E-Cigs</button>
+                    </div>
+
+                    <div class="brand-list" id="brandList">
+                        <div style="padding: 20px; text-align: center; color: #999;">
+                            Select a store first...
+                        </div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div class="form-group">
+                        <div class="current-price-display">
+                            <strong>Selected Brand:</strong> <span id="selectedBrandDisplay">None</span>
+                        </div>
+                        <div class="current-price-display" id="invoiceDisplay" style="display: none;">
+                            <strong>Current Invoice:</strong> $<span id="invoiceValue">0.00</span> | <strong>Rebate:</strong> $<span id="rebateValue">0.00</span>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Retail Price (Pack) *</label>
+                            <input type="number" id="retailPack" placeholder="9.99" step="0.01" min="0">
+                            <div class="current-price-display" id="packOldPrice" style="font-size: 11px; margin-top: 4px; display: none;"></div>
+                        </div>
+                        <div class="form-group">
+                            <label>Retail Price (Carton) *</label>
+                            <input type="number" id="retailCarton" placeholder="99.99" step="0.01" min="0">
+                            <div class="current-price-display" id="cartonOldPrice" style="font-size: 11px; margin-top: 4px; display: none;"></div>
+                        </div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div class="form-group">
+                        <label>Loyalty Discount (Buy 2 with Phone #)</label>
+                        <input type="number" id="loyaltyDiscount" placeholder="1.00" step="0.01" min="0" value="0">
+                        <div class="info-box">$ off per pack when buying 2 with phone number</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Multipack Discount (Buy 2, Auto Save)</label>
+                        <input type="number" id="multipackDiscount" placeholder="0.50" step="0.01" min="0" value="0">
+                        <div class="info-box">$ off per pack when buying 2 (automatic)</div>
+                    </div>
+
+                    <div class="button-group">
+                        <button class="btn-primary" onclick="submitPricing()">💾 Save to Google Sheets</button>
+                        <button class="btn-secondary" onclick="clearForm()">Clear</button>
+                    </div>
+                </div>
+
+                <!-- RIGHT: Display & Preview -->
+                <div class="card">
+                    <h2>Pricing Preview</h2>
+
+                    <div class="info-box">
+                        Select a brand and enter prices to see the pricing display
+                    </div>
+
+                    <div id="displaySection" style="display: none;">
+                        <div class="display-card">
+                            <div class="display-title" id="displayBrand">Brand @ Store</div>
+                            <div class="pricing-grid">
+                                <div class="price-box">
+                                    <div class="price-label">Single Pack Retail</div>
+                                    <div class="price-value" id="displayPackPrice">$0.00</div>
+                                    <div class="margin-badge">Margin: <span id="displayPackMargin">0</span>%</div>
+                                </div>
+                                <div class="price-box">
+                                    <div class="price-label">Carton Retail</div>
+                                    <div class="price-value" id="displayCartonPrice">$0.00</div>
+                                    <div class="margin-badge">Margin: <span id="displayCartonMargin">0</span>%</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="loyaltySection" style="display: none;">
+                            <div class="display-card">
+                                <div class="display-title">💳 Loyalty Pricing</div>
+                                <div class="pricing-grid">
+                                    <div class="price-box loyalty">
+                                        <div class="price-label">Price Per Pack</div>
+                                        <div class="price-value" id="displayLoyaltyPrice">$0.00</div>
+                                        <div class="price-note" id="displayLoyaltyNote">Buy 2 with phone #</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="multipackSection" style="display: none;">
+                            <div class="display-card">
+                                <div class="display-title">📦 Multipack Pricing</div>
+                                <div class="pricing-grid">
+                                    <div class="price-box multipack">
+                                        <div class="price-label">Price Per Pack</div>
+                                        <div class="price-value" id="displayMultipackPrice">$0.00</div>
+                                        <div class="price-note" id="displayMultipackNote">Buy 2, automatically save</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="loading" class="loading">
+                        <span class="spinner"></span>Saving to Google Sheets...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- EMPLOYEE MODE -->
+        <div id="employeeMode" class="mode-section">
+            <div class="main-content">
+                <div class="card" style="grid-column: 1 / -1;">
+                    <h2>👁️ View Current Pricing</h2>
+
+                    <div class="form-group">
+                        <label>Store Location *</label>
+                        <select id="empStore" required onchange="loadEmployeeData()">
+                            <option value="">-- Select Store --</option>
+                            <option value="KC Mart 09">KC Mart 09</option>
+                            <option value="KC Mart 06">KC Mart 06</option>
+                            <option value="Pats Store 2">Pats Store 2</option>
+                            <option value="HP-Vivek">HP-Vivek</option>
+                            <option value="MTG-3">MTG-3</option>
+                            <option value="MTG-5">MTG-5</option>
+                            <option value="QuickStop">QuickStop</option>
+                            <option value="SQS">SQS</option>
+                            <option value="Hi Cotton">Hi Cotton</option>
+                        </select>
+                    </div>
+
+                    <div class="search-input">
+                        <input type="text" id="empBrandSearch" placeholder="🔍 Search brand name..." onkeyup="filterEmployeeBrands()">
+                    </div>
+                </div>
+            </div>
+
+            <div id="employeePricingDisplay" class="employee-display" style="margin-top: 24px; display: none;">
+                <!-- Pricing cards will populate here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Embedded brand data FIRST
+        const BRANDS_DATA_PLACEHOLDER = [
+  {"brand": "NEWPORT Menthol (4340618)", "invoice": 97.97, "rebate": 7.0, "category": "cigarettes"},
+  {"brand": "NEWPORT Menthol SOFT king and 100s", "invoice": 92.97, "rebate": 9.0, "category": "cigarettes"},
+  {"brand": "NEWPORT Platinum (SUPPORT)", "invoice": 97.97, "rebate": 0.0, "category": "cigarettes"},
+  {"brand": "NEWPORT Smooth Select (SUPPORT)", "invoice": 97.97, "rebate": 0.0, "category": "cigarettes"},
+  {"brand": "Newport Boost(SUPPORT)", "invoice": 97.97, "rebate": 0.0, "category": "cigarettes"},
+  {"brand": "NEWPORT RED (Non Menthol) (4356812)", "invoice": 89.01, "rebate": 0.0, "category": "cigarettes"},
+  {"brand": "CAMELS Capsule (Crush) (4345393)", "invoice": 92.63, "rebate": 7.0, "category": "cigarettes"},
+  {"brand": "CAMEL Core (Classic Gold, Blues, Filters) (4337366)", "invoice": 92.63, "rebate": 13.0, "category": "cigarettes"},
+  {"brand": "CAMEL TURKISH Blend", "invoice": 92.63, "rebate": 11.0, "category": "cigarettes"},
+  {"brand": "CAMELS Wide / Turkish Claasic", "invoice": 105.91, "rebate": 0.0, "category": "cigarettes"},
+  {"brand": "Lucky Strike", "invoice": 65.12, "rebate": 11.5, "category": "cigarettes"},
+  {"brand": "Pall Mall (4341954)", "invoice": 81.3, "rebate": 6.5, "category": "cigarettes"},
+  {"brand": "Pall Mall Select (4365375)", "invoice": 57.14, "rebate": 8.0, "category": "cigarettes"},
+  {"brand": "American Spirit. (4341137)", "invoice": 98.67, "rebate": 0.0, "category": "cigarettes"},
+  {"brand": "American Spirit Organic. (4341210)", "invoice": 103.46, "rebate": 0.0, "category": "cigarettes"},
+  {"brand": "MARL Mainline NON-Menthol/ RED LABEL (4336442)", "invoice": 90.4, "rebate": 1.5, "category": "cigarettes"},
+  {"brand": "MARL MAINLINE MENTHOL (GROUP B) (4336467)", "invoice": 95.4, "rebate": 0.0, "category": "cigarettes"},
+  {"brand": "MARL 72's MENTHOL (GROUP B) (4336970)", "invoice": 95.4, "rebate": 6.5, "category": "cigarettes"},
+  {"brand": "MARL 72's (4337044)", "invoice": 90.4, "rebate": 6.5, "category": "cigarettes"},
+  {"brand": "MARL BLACK Non Menthol / GOLD LABEL (4965299)", "invoice": 85.91, "rebate": 15.5, "category": "cigarettes"},
+  {"brand": "MARL BLACK Menthol (4357620)", "invoice": 85.91, "rebate": 15.5, "category": "cigarettes"},
+  {"brand": "MARL SP BLND (Special Select) (4355046)", "invoice": 90.4, "rebate": 5.5, "category": "cigarettes"},
+  {"brand": "MARL COWBOY CUT", "invoice": 76.04, "rebate": 20.5, "category": "cigarettes"},
+  {"brand": "L & M (4336947)", "invoice": 88.91, "rebate": 4.5, "category": "cigarettes"},
+  {"brand": "KOOL (4361689)", "invoice": 92.63, "rebate": 4.6, "category": "cigarettes"},
+  {"brand": "KOOL LUXE", "invoice": 86.9, "rebate": 15.5, "category": "cigarettes"},
+  {"brand": "Kool Black", "invoice": 58.75, "rebate": 8.6, "category": "cigarettes"},
+  {"brand": "WINSTON (4361887)", "invoice": 91.94, "rebate": 16.3, "category": "cigarettes"},
+  {"brand": "Winston Select", "invoice": 58.06, "rebate": 7.7, "category": "cigarettes"},
+  {"brand": "MAVERICK (4361721)", "invoice": 71.54, "rebate": 5.8, "category": "cigarettes"},
+  {"brand": "MISTY (4379020)", "invoice": 111.12, "rebate": 0.0, "category": "cigarettes"},
+  {"brand": "SALEM (ITG) (4361796)", "invoice": 109.08, "rebate": 0.0, "category": "cigarettes"},
+  {"brand": "Antage", "invoice": 133.0, "rebate": 0.0, "category": "cigarettes"},
+  {"brand": "V-Slim (4347134) / Parliament (02881522)", "invoice": 107.66, "rebate": 0.0, "category": "cigarettes"},
+  {"brand": "24x7", "invoice": 31.79, "rebate": 0.0, "category": "cigarettes"},
+  {"brand": "OLD (Newbuy down started 1/25 2026)", "invoice": 39.15, "rebate": 0.0, "category": "cigarettes"},
+  {"brand": "Seneca (4372850)", "invoice": 38.59, "rebate": 0.0, "category": "cigarettes"},
+  {"brand": "Montego", "invoice": 44.85, "rebate": 4.5, "category": "cigarettes"},
+  {"brand": "GRIZZLY WG/Mint/Dark", "invoice": 25.15, "rebate": 0.0, "category": "dip"},
+  {"brand": "GRIZZLY Straight/Natural", "invoice": 25.15, "rebate": 0.0, "category": "dip"},
+  {"brand": "GRIZZLY Nic Pouch 7mg only", "invoice": 22.17, "rebate": 0.0, "category": "dip"},
+  {"brand": "GRIZZLY Nic Pouch 2.0", "invoice": 22.17, "rebate": 0.0, "category": "dip"},
+  {"brand": "Velo", "invoice": 22.17, "rebate": 0.0, "category": "dip"},
+  {"brand": "Velo Plus", "invoice": 22.17, "rebate": 0.0, "category": "dip"},
+  {"brand": "Grizzly Snus", "invoice": 24.61, "rebate": 0.0, "category": "dip"},
+  {"brand": "Camel Snus", "invoice": 30.55, "rebate": 0.5, "category": "dip"},
+  {"brand": "Kodiak", "invoice": 30.92, "rebate": 0.25, "category": "dip"},
+  {"brand": "Cougar", "invoice": 15.69, "rebate": 0.25, "category": "dip"},
+  {"brand": "Levi Garrett", "invoice": 23.6, "rebate": 0.0, "category": "dip"},
+  {"brand": "SKOAL XTRA", "invoice": 30.43, "rebate": 0.0, "category": "dip"},
+  {"brand": "SKOAL BLENDS", "invoice": 30.43, "rebate": 0.0, "category": "dip"},
+  {"brand": "SKOAL CLASSIC", "invoice": 30.43, "rebate": 0.0, "category": "dip"},
+  {"brand": "SKOAL Snus", "invoice": 26.09, "rebate": 0.0, "category": "dip"},
+  {"brand": "COPENHAGEN Popular/ Spitfree", "invoice": 25.85, "rebate": 0.0, "category": "dip"},
+  {"brand": "COPENHAGEN Mainline", "invoice": 29.62, "rebate": 0.0, "category": "dip"},
+  {"brand": "Husky", "invoice": 12.72, "rebate": 2.5, "category": "dip"},
+  {"brand": "Red Seal", "invoice": 24.27, "rebate": 0.0, "category": "dip"},
+  {"brand": "Long horn", "invoice": 12.66, "rebate": 0.0, "category": "dip"},
+  {"brand": "Zone", "invoice": 18.93, "rebate": 0.0, "category": "dip"},
+  {"brand": "ZYN", "invoice": 5.51, "rebate": 0.0, "category": "cigarettes"},
+  {"brand": "ZYN After Dark", "invoice": 22.17, "rebate": 0.0, "category": "cigarettes"},
+  {"brand": "Alto Devices", "invoice": 37.83, "rebate": 0.0, "category": "ecig"},
+  {"brand": "Alto Singles Pod", "invoice": 30.7, "rebate": 0.0, "category": "ecig"},
+  {"brand": "Alto 2 Pod", "invoice": 62.24, "rebate": 0.0, "category": "ecig"},
+  {"brand": "Alto 4 Pod", "invoice": 100.42, "rebate": 1.0, "category": "ecig"},
+  {"brand": "Alto 6 pod", "invoice": 135.25, "rebate": 0.0, "category": "ecig"},
+  {"brand": "All in One kit", "invoice": 51.51, "rebate": 1.0, "category": "cigarettes"},
+  {"brand": "Alto Primatic kit", "invoice": 73.57, "rebate": 2.0, "category": "ecig"},
+  {"brand": "Primatic 3 pod pack", "invoice": 90.95, "rebate": 0.0, "category": "ecig"},
+  {"brand": "Sensa", "invoice": 75.47, "rebate": 3.0, "category": "ecig"},
+  {"brand": "NJOY Devices", "invoice": 36.53, "rebate": 20.0, "category": "ecig"},
+  {"brand": "NJOY Singles Pod", "invoice": 38.39, "rebate": 0.0, "category": "ecig"},
+  {"brand": "NJOY Daily", "invoice": 19.86, "rebate": 0.0, "category": "ecig"},
+  {"brand": "NJOY Device + 2 Pod", "invoice": 21.21, "rebate": 0.0, "category": "ecig"},
+  {"brand": "On!", "invoice": 18.5, "rebate": 0.0, "category": "ecig"},
+  {"brand": "On! Plus", "invoice": 22.17, "rebate": 0.0, "category": "ecig"}
+        ];
+
+        const DEPLOYMENT_URL = "https://script.google.com/macros/s/AKfycbxahrV8U7Y-lKNAofh-hy9eH_86Mp2AkMOhEIK03_MccQS0iYc6YcJ09jHK2E0r-SyU/exec";
+
+        // Brand data reference
+        const brandData = BRANDS_DATA_PLACEHOLDER;
+        let currentCategory = 'all';
+        let selectedBrand = null;
+
+        function selectMode(mode) {
+            document.querySelectorAll('.mode-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.mode-btn').forEach(el => el.classList.remove('active'));
+            
+            if (mode === 'manager') {
+                document.getElementById('managerMode').classList.add('active');
+                document.querySelectorAll('.mode-btn')[0].classList.add('active');
+                document.getElementById('modeBadge').textContent = '🔐 Manager Mode - Edit Pricing';
+                document.getElementById('store').focus();
+            } else {
+                document.getElementById('employeeMode').classList.add('active');
+                document.querySelectorAll('.mode-btn')[1].classList.add('active');
+                document.getElementById('modeBadge').textContent = '👁️ Employee Mode - View Only';
+                document.getElementById('empStore').focus();
+            }
+        }
+
+        // MANAGER MODE FUNCTIONS
+        document.getElementById('store').addEventListener('change', function() {
+            if (this.value) {
+                loadBrands();
+            } else {
+                document.getElementById('brandList').innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">Select a store first...</div>';
+            }
+        });
+
+        function loadBrands() {
+            const store = document.getElementById('store').value;
+            const filtered = brandData.filter(b => {
+                if (currentCategory === 'all') return true;
+                return b.category === currentCategory;
+            });
+
+            let html = filtered.map((brand, idx) => `
+                <div class="brand-item" onclick="selectBrand(${idx}, '${brand.brand}', ${brand.invoice}, ${brand.rebate})">
+                    <div>
+                        <div class="brand-name">${brand.brand}</div>
+                        <div class="brand-invoice">Cost: $${brand.invoice.toFixed(2)} | Rebate: $${brand.rebate.toFixed(2)}</div>
+                    </div>
+                    <div class="cost-info">${brand.category}</div>
+                </div>
+            `).join('');
+
+            document.getElementById('brandList').innerHTML = html || '<div style="padding: 20px; text-align: center; color: #999;">No brands found</div>';
+        }
+
+        function filterBrands() {
+            const search = document.getElementById('brandSearch').value.toLowerCase();
+            const filtered = brandData.filter(b => {
+                const matchSearch = b.brand.toLowerCase().includes(search);
+                const matchCategory = currentCategory === 'all' || b.category === currentCategory;
+                return matchSearch && matchCategory;
+            });
+
+            let html = filtered.map((brand, idx) => `
+                <div class="brand-item" onclick="selectBrand(${idx}, '${brand.brand}', ${brand.invoice}, ${brand.rebate})">
+                    <div>
+                        <div class="brand-name">${brand.brand}</div>
+                        <div class="brand-invoice">Cost: $${brand.invoice.toFixed(2)} | Rebate: $${brand.rebate.toFixed(2)}</div>
+                    </div>
+                    <div class="cost-info">${brand.category}</div>
+                </div>
+            `).join('');
+
+            document.getElementById('brandList').innerHTML = html || '<div style="padding: 20px; text-align: center; color: #999;">No brands found</div>';
+        }
+
+        function filterByCategory(category) {
+            currentCategory = category;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            loadBrands();
+        }
+
+        function selectBrand(idx, brand, invoice, rebate) {
+            selectedBrand = { brand, invoice, rebate };
+            document.getElementById('selectedBrandDisplay').textContent = brand;
+            document.getElementById('invoiceValue').textContent = invoice.toFixed(2);
+            document.getElementById('rebateValue').textContent = rebate.toFixed(2);
+            document.getElementById('invoiceDisplay').style.display = 'block';
+            
+            document.querySelectorAll('.brand-item').forEach((el, i) => {
+                el.classList.toggle('selected', i === idx);
+            });
+        }
+
+        function submitPricing() {
+            const store = document.getElementById('store').value;
+            const retailPack = parseFloat(document.getElementById('retailPack').value);
+            const retailCarton = parseFloat(document.getElementById('retailCarton').value);
+            const loyaltyDiscount = parseFloat(document.getElementById('loyaltyDiscount').value) || 0;
+            const multipackDiscount = parseFloat(document.getElementById('multipackDiscount').value) || 0;
+
+            if (!store || !selectedBrand || !retailPack || !retailCarton) {
+                showMessage('Please select store, brand, and enter retail prices', 'error');
+                return;
+            }
+
+            if (DEPLOYMENT_URL === "PASTE_YOUR_GOOGLE_APPS_SCRIPT_DEPLOYMENT_URL_HERE") {
+                showMessage('⚠️ Google Apps Script URL not configured', 'error');
+                return;
+            }
+
+            document.getElementById('loading').classList.add('show');
+
+            const costAfterRebate = selectedBrand.invoice - selectedBrand.rebate;
+            const costPerUnit = costAfterRebate / 10;
+            const marginPack = ((retailPack - costPerUnit) / retailPack * 100).toFixed(2);
+            const marginCarton = ((retailCarton - costAfterRebate) / retailCarton * 100).toFixed(2);
+
+            const payload = {
+                store: store,
+                brand: selectedBrand.brand,
+                invoicePrice: selectedBrand.invoice,
+                rebate: selectedBrand.rebate,
+                retailPack: retailPack,
+                retailCarton: retailCarton,
+                loyaltyDiscount: loyaltyDiscount,
+                multipackDiscount: multipackDiscount,
+                unitsPerCarton: 10
+            };
+
+            fetch(DEPLOYMENT_URL, {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('loading').classList.remove('show');
+                if (data.success) {
+                    showMessage(`✅ ${selectedBrand.brand} pricing saved!`, 'success');
+                    displayPricing(payload, data.margins);
+                } else {
+                    showMessage(`❌ Error: ${data.error}`, 'error');
+                }
+            })
+            .catch(error => {
+                document.getElementById('loading').classList.remove('show');
+                showMessage('Error connecting to Google Sheets', 'error');
+            });
+        }
+
+        function displayPricing(data, margins) {
+            document.getElementById('displaySection').style.display = 'block';
+            document.getElementById('displayBrand').textContent = data.brand + ' @ ' + data.store;
+            
+            document.getElementById('displayPackPrice').textContent = '$' + parseFloat(data.retailPack).toFixed(2);
+            document.getElementById('displayCartonPrice').textContent = '$' + parseFloat(data.retailCarton).toFixed(2);
+            document.getElementById('displayPackMargin').textContent = margins.packMargin;
+            document.getElementById('displayCartonMargin').textContent = margins.cartonMargin;
+
+            if (data.loyaltyDiscount > 0) {
+                const loyaltyPrice = (data.retailPack - data.loyaltyDiscount).toFixed(2);
+                document.getElementById('displayLoyaltyPrice').textContent = '$' + loyaltyPrice;
+                document.getElementById('displayLoyaltyNote').textContent = `Buy 2 with phone # — Save $${data.loyaltyDiscount.toFixed(2)} each`;
+                document.getElementById('loyaltySection').style.display = 'block';
+            } else {
+                document.getElementById('loyaltySection').style.display = 'none';
+            }
+
+            if (data.multipackDiscount > 0) {
+                const multipackPrice = (data.retailPack - data.multipackDiscount).toFixed(2);
+                document.getElementById('displayMultipackPrice').textContent = '$' + multipackPrice;
+                document.getElementById('displayMultipackNote').textContent = `Buy 2, automatically save $${data.multipackDiscount.toFixed(2)} each`;
+                document.getElementById('multipackSection').style.display = 'block';
+            } else {
+                document.getElementById('multipackSection').style.display = 'none';
+            }
+        }
+
+        function clearForm() {
+            document.getElementById('retailPack').value = '';
+            document.getElementById('retailCarton').value = '';
+            document.getElementById('loyaltyDiscount').value = '0';
+            document.getElementById('multipackDiscount').value = '0';
+            document.getElementById('displaySection').style.display = 'none';
+            selectedBrand = null;
+            document.getElementById('selectedBrandDisplay').textContent = 'None';
+        }
+
+        function showMessage(text, type) {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = text;
+            messageEl.className = 'message ' + type;
+            setTimeout(() => {
+                messageEl.className = 'message';
+            }, 4000);
+        }
+
+        // EMPLOYEE MODE FUNCTIONS
+        function loadEmployeeData() {
+            const store = document.getElementById('empStore').value;
+            const searchTerm = document.getElementById('empBrandSearch').value.toLowerCase();
+            
+            if (!store) {
+                document.getElementById('employeePricingDisplay').style.display = 'none';
+                return;
+            }
+
+            // Filter brands by search term
+            let filtered = brandData;
+            if (searchTerm) {
+                filtered = brandData.filter(b => b.brand.toLowerCase().includes(searchTerm));
+            }
+
+            if (filtered.length === 0) {
+                document.getElementById('employeePricingDisplay').innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">No brands found matching your search</div>';
+                document.getElementById('employeePricingDisplay').style.display = 'block';
+                return;
+            }
+
+            // Build pricing cards
+            let html = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px;">';
+            
+            filtered.forEach(brand => {
+                const costAfterRebate = brand.invoice - brand.rebate;
+                const costPerUnit = costAfterRebate / 10;
+                
+                html += `
+                    <div style="background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.08);">
+                        <div style="font-weight: 600; font-size: 14px; color: #1a3a52; margin-bottom: 12px; border-bottom: 2px solid #2c5aa0; padding-bottom: 8px;">
+                            ${brand.brand}
+                        </div>
+                        <div style="font-size: 12px; color: #666; margin-bottom: 12px;">
+                            <strong>Store:</strong> ${store}
+                        </div>
+                        <div style="font-size: 13px; color: #333; margin-bottom: 8px;">
+                            <strong>Invoice:</strong> $${brand.invoice.toFixed(2)}<br>
+                            <strong>Rebate:</strong> $${brand.rebate.toFixed(2)}<br>
+                            <strong>Cost after Rebate:</strong> $${costAfterRebate.toFixed(2)}<br>
+                            <strong>Cost per Unit:</strong> $${costPerUnit.toFixed(2)}
+                        </div>
+                        <div style="background: #f5f5f5; padding: 12px; border-radius: 8px; font-size: 12px; color: #666;">
+                            <div style="margin-bottom: 8px;">
+                                <strong style="color: #1a3a52;">Pack Price:</strong> <span style="color: #2c5aa0; font-weight: 600;">Check POS for current retail</span>
+                            </div>
+                            <div>
+                                <strong style="color: #1a3a52;">Carton Price:</strong> <span style="color: #2c5aa0; font-weight: 600;">Check POS for current retail</span>
+                            </div>
+                        </div>
+                        <div style="font-size: 11px; color: #999; margin-top: 8px; font-style: italic;">
+                            Category: <strong>${brand.category}</strong>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            document.getElementById('employeePricingDisplay').innerHTML = html;
+            document.getElementById('employeePricingDisplay').style.display = 'block';
+        }
+
+        function filterEmployeeBrands() {
+            loadEmployeeData();
+        }
+
+        // Initialize
+        selectMode('manager');
+    </script>
+</body>
+</html>
+  {"brand": "NEWPORT Platinum (SUPPORT)", "invoice": 97.97, "rebate": 0.0, "category": "cigarettes"},
+  {"brand": "NEWPORT Smooth Select (SUPPORT)", "invoice": 97.97, "rebate": 0.0, "category": "cigarettes"},
+  {"brand": "Newport Boost(SUPPORT)", "invoice": 97.97, "rebate": 0.0, "category": "cigarettes"},
+  {"brand": "NEWPORT RED (Non Menthol) (4356812)", "invoice": 89.01, "rebate": 0.0, "category": "cigarettes"},
+  {"brand": "CAMELS Capsule (Crush) (4345393)", "invoice": 92.63, "rebate": 7.0, "category": "cigarettes"},
+  {"brand": "CAMEL Core (Classic Gold, Blues, Filters) (4337366)", "invoice": 92.63, "rebate": 13.0, "category": "cigarettes"},
+  {"brand": "CAMEL TURKISH Blend", "invoice": 92.63, "rebate": 11.0, "category": "cigarettes"},
+  {"brand": "CAMELS Wide / Turkish Claasic", "invoice": 105.91, "rebate": 0.0, "category": "cigarettes"},
+  {"brand": "Lucky Strike", "invoice": 65.12, "rebate": 11.5, "category": "cigarettes"},
+  {"brand": "Pall Mall (4341954)", "invoice": 81.3, "rebate": 6.5, "category": "cigarettes"},
+  {"brand": "Pall Mall Select (4365375)", "invoice": 57.14, "rebate": 8.0, "category": "cigarettes"},
+  {"brand": "American Spirit. (4341137)", "invoice": 98.67, "rebate": 0.0, "category": "cigarettes"},
+  {"brand": "American Spirit Organic. (4341210)", "invoice": 103.46, "rebate": 0.0, "category": "cigarettes"},
+  {"brand": "MARL Mainline NON-Menthol/ RED LABEL (4336442)", "invoice": 90.4, "rebate": 1.5, "category": "cigarettes"},
+  {"brand": "MARL MAINLINE MENTHOL (GROUP B) (4336467)", "invoice": 95.4, "rebate": 0.0, "category": "cigarettes"},
+  {"brand": "MARL 72's MENTHOL (GROUP B) (4336970)", "invoice": 95.4, "rebate": 6.5, "category": "cigarettes"},
+  {"brand": "MARL 72's (4337044)", "invoice": 90.4, "rebate": 6.5, "category": "cigarettes"},
+  {"brand": "MARL BLACK Non Menthol / GOLD LABEL (4965299)", "invoice": 85.91, "rebate": 15.5, "category": "cigarettes"},
+  {"brand": "MARL BLACK Menthol (4357620)", "invoice": 85.91, "rebate": 15.5, "category": "cigarettes"},
+  {"brand": "MARL SP BLND (Special Select) (4355046)", "invoice": 90.4, "rebate": 5.5, "category": "cigarettes"},
+  {"brand": "MARL COWBOY CUT", "invoice": 76.04, "rebate": 20.5, "category": "cigarettes"},
+  {"brand": "L & M (4336947)", "invoice": 88.91, "rebate": 4.5, "category": "cigarettes"},
+  {"brand": "KOOL (4361689)", "invoice": 92.63, "rebate": 4.6, "category": "cigarettes"},
+  {"brand": "KOOL LUXE", "invoice": 86.9, "rebate": 15.5, "category": "cigarettes"},
+  {"brand": "Kool Black", "invoice": 58.75, "rebate": 8.6, "category": "cigarettes"},
+  {"brand": "WINSTON (4361887)", "invoice": 91.94, "rebate": 16.3, "category": "cigarettes"},
+  {"brand": "Winston Select", "invoice": 58.06, "rebate": 7.7, "category": "cigarettes"},
+  {"brand": "MAVERICK (4361721)", "invoice": 71.54, "rebate": 5.8, "category": "cigarettes"},
+  {"brand": "MISTY (4379020)", "invoice": 111.12, "rebate": 0.0, "category": "cigarettes"},
+  {"brand": "SALEM (ITG) (4361796)", "invoice": 109.08, "rebate": 0.0, "category": "cigarettes"},
+  {"brand": "Antage", "invoice": 133.0, "rebate": 0.0, "category": "cigarettes"},
+  {"brand": "V-Slim (4347134) / Parliament (02881522)", "invoice": 107.66, "rebate": 0.0, "category": "cigarettes"},
+  {"brand": "24x7", "invoice": 31.79, "rebate": 0.0, "category": "cigarettes"},
+  {"brand": "OLD (Newbuy down started 1/25 2026)", "invoice": 39.15, "rebate": 0.0, "category": "cigarettes"},
+  {"brand": "Seneca (4372850)", "invoice": 38.59, "rebate": 0.0, "category": "cigarettes"},
+  {"brand": "Montego", "invoice": 44.85, "rebate": 4.5, "category": "cigarettes"},
+  {"brand": "GRIZZLY WG/Mint/Dark", "invoice": 25.15, "rebate": 0.0, "category": "dip"},
+  {"brand": "GRIZZLY Straight/Natural", "invoice": 25.15, "rebate": 0.0, "category": "dip"},
+  {"brand": "GRIZZLY Nic Pouch 7mg only", "invoice": 22.17, "rebate": 0.0, "category": "dip"},
+  {"brand": "GRIZZLY Nic Pouch 2.0", "invoice": 22.17, "rebate": 0.0, "category": "dip"},
+  {"brand": "Velo", "invoice": 22.17, "rebate": 0.0, "category": "dip"},
+  {"brand": "Velo Plus", "invoice": 22.17, "rebate": 0.0, "category": "dip"},
+  {"brand": "Grizzly Snus", "invoice": 24.61, "rebate": 0.0, "category": "dip"},
+  {"brand": "Camel Snus", "invoice": 30.55, "rebate": 0.5, "category": "dip"},
+  {"brand": "Kodiak", "invoice": 30.92, "rebate": 0.25, "category": "dip"},
+  {"brand": "Cougar", "invoice": 15.69, "rebate": 0.25, "category": "dip"},
+  {"brand": "Levi Garrett", "invoice": 23.6, "rebate": 0.0, "category": "dip"},
+  {"brand": "SKOAL XTRA", "invoice": 30.43, "rebate": 0.0, "category": "dip"},
+  {"brand": "SKOAL BLENDS", "invoice": 30.43, "rebate": 0.0, "category": "dip"},
+  {"brand": "SKOAL CLASSIC", "invoice": 30.43, "rebate": 0.0, "category": "dip"},
+  {"brand": "SKOAL Snus", "invoice": 26.09, "rebate": 0.0, "category": "dip"},
+  {"brand": "COPENHAGEN Popular/ Spitfree", "invoice": 25.85, "rebate": 0.0, "category": "dip"},
+  {"brand": "COPENHAGEN Mainline", "invoice": 29.62, "rebate": 0.0, "category": "dip"},
+  {"brand": "Husky", "invoice": 12.72, "rebate": 2.5, "category": "dip"},
+  {"brand": "Red Seal", "invoice": 24.27, "rebate": 0.0, "category": "dip"},
+  {"brand": "Long horn", "invoice": 12.66, "rebate": 0.0, "category": "dip"},
+  {"brand": "Zone", "invoice": 18.93, "rebate": 0.0, "category": "dip"},
+  {"brand": "ZYN", "invoice": 5.51, "rebate": 0.0, "category": "cigarettes"},
+  {"brand": "ZYN After Dark", "invoice": 22.17, "rebate": 0.0, "category": "cigarettes"},
+  {"brand": "Alto Devices", "invoice": 37.83, "rebate": 0.0, "category": "ecig"},
+  {"brand": "Alto Singles Pod", "invoice": 30.7, "rebate": 0.0, "category": "ecig"},
+  {"brand": "Alto 2 Pod", "invoice": 62.24, "rebate": 0.0, "category": "ecig"},
+  {"brand": "Alto 4 Pod", "invoice": 100.42, "rebate": 1.0, "category": "ecig"},
+  {"brand": "Alto 6 pod", "invoice": 135.25, "rebate": 0.0, "category": "ecig"},
+  {"brand": "All in One kit", "invoice": 51.51, "rebate": 1.0, "category": "cigarettes"},
+  {"brand": "Alto Primatic kit", "invoice": 73.57, "rebate": 2.0, "category": "ecig"},
+  {"brand": "Primatic 3 pod pack", "invoice": 90.95, "rebate": 0.0, "category": "ecig"},
+  {"brand": "Sensa", "invoice": 75.47, "rebate": 3.0, "category": "ecig"},
+  {"brand": "NJOY Devices", "invoice": 36.53, "rebate": 20.0, "category": "ecig"},
+  {"brand": "NJOY Singles Pod", "invoice": 38.39, "rebate": 0.0, "category": "ecig"},
+  {"brand": "NJOY Daily", "invoice": 19.86, "rebate": 0.0, "category": "ecig"},
+  {"brand": "NJOY Device + 2 Pod", "invoice": 21.21, "rebate": 0.0, "category": "ecig"},
+  {"brand": "On!", "invoice": 18.5, "rebate": 0.0, "category": "ecig"},
+  {"brand": "On! Plus", "invoice": 22.17, "rebate": 0.0, "category": "ecig"}
+        ];
+    </script>
+</body>
+</html>
