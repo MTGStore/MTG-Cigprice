@@ -757,7 +757,7 @@
   {"brand": "On! Plus", "invoice": 22.17, "rebate": 0.0, "category": "ecig"}
         ];
 
-        const DEPLOYMENT_URL = "https://script.google.com/macros/s/AKfycbxahrV8U7Y-lKNAofh-hy9eH_86Mp2AkMOhEIK03_MccQS0iYc6YcJ09jHK2E0r-SyU/exec";
+        const DEPLOYMENT_URL = "PASTE_YOUR_GOOGLE_APPS_SCRIPT_DEPLOYMENT_URL_HERE";
 
         // Brand data reference
         const brandData = BRANDS_DATA_PLACEHOLDER;
@@ -765,15 +765,31 @@
         let selectedBrand = null;
 
         function selectMode(mode) {
-            document.querySelectorAll('.mode-section').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.mode-btn').forEach(el => el.classList.remove('active'));
-            
             if (mode === 'manager') {
-                document.getElementById('managerMode').classList.add('active');
-                document.querySelectorAll('.mode-btn')[0].classList.add('active');
-                document.getElementById('modeBadge').textContent = '🔐 Manager Mode - Edit Pricing';
-                document.getElementById('store').focus();
+                // Prompt for password
+                const password = prompt('🔐 Manager Mode Password Required:\n\nEnter password to access pricing editor:');
+                
+                if (password === '8642660425') {
+                    // Correct password
+                    document.querySelectorAll('.mode-section').forEach(el => el.classList.remove('active'));
+                    document.querySelectorAll('.mode-btn').forEach(el => el.classList.remove('active'));
+                    
+                    document.getElementById('managerMode').classList.add('active');
+                    document.querySelectorAll('.mode-btn')[0].classList.add('active');
+                    document.getElementById('modeBadge').textContent = '🔐 Manager Mode - Edit Pricing (Authenticated)';
+                    document.getElementById('store').focus();
+                    
+                    showMessage('✅ Manager access granted!', 'success');
+                } else if (password !== null) {
+                    // Wrong password (user didn't cancel)
+                    showMessage('❌ Incorrect password. Access denied.', 'error');
+                }
+                // If password is null, user clicked Cancel - do nothing
             } else {
+                // Employee mode - no password needed
+                document.querySelectorAll('.mode-section').forEach(el => el.classList.remove('active'));
+                document.querySelectorAll('.mode-btn').forEach(el => el.classList.remove('active'));
+                
                 document.getElementById('employeeMode').classList.add('active');
                 document.querySelectorAll('.mode-btn')[1].classList.add('active');
                 document.getElementById('modeBadge').textContent = '👁️ Employee Mode - View Only';
@@ -1020,86 +1036,8 @@
             loadEmployeeData();
         }
 
-        // Initialize
-        selectMode('manager');
-    </script>
-</body>
-</html>
-  {"brand": "NEWPORT Platinum (SUPPORT)", "invoice": 97.97, "rebate": 0.0, "category": "cigarettes"},
-  {"brand": "NEWPORT Smooth Select (SUPPORT)", "invoice": 97.97, "rebate": 0.0, "category": "cigarettes"},
-  {"brand": "Newport Boost(SUPPORT)", "invoice": 97.97, "rebate": 0.0, "category": "cigarettes"},
-  {"brand": "NEWPORT RED (Non Menthol) (4356812)", "invoice": 89.01, "rebate": 0.0, "category": "cigarettes"},
-  {"brand": "CAMELS Capsule (Crush) (4345393)", "invoice": 92.63, "rebate": 7.0, "category": "cigarettes"},
-  {"brand": "CAMEL Core (Classic Gold, Blues, Filters) (4337366)", "invoice": 92.63, "rebate": 13.0, "category": "cigarettes"},
-  {"brand": "CAMEL TURKISH Blend", "invoice": 92.63, "rebate": 11.0, "category": "cigarettes"},
-  {"brand": "CAMELS Wide / Turkish Claasic", "invoice": 105.91, "rebate": 0.0, "category": "cigarettes"},
-  {"brand": "Lucky Strike", "invoice": 65.12, "rebate": 11.5, "category": "cigarettes"},
-  {"brand": "Pall Mall (4341954)", "invoice": 81.3, "rebate": 6.5, "category": "cigarettes"},
-  {"brand": "Pall Mall Select (4365375)", "invoice": 57.14, "rebate": 8.0, "category": "cigarettes"},
-  {"brand": "American Spirit. (4341137)", "invoice": 98.67, "rebate": 0.0, "category": "cigarettes"},
-  {"brand": "American Spirit Organic. (4341210)", "invoice": 103.46, "rebate": 0.0, "category": "cigarettes"},
-  {"brand": "MARL Mainline NON-Menthol/ RED LABEL (4336442)", "invoice": 90.4, "rebate": 1.5, "category": "cigarettes"},
-  {"brand": "MARL MAINLINE MENTHOL (GROUP B) (4336467)", "invoice": 95.4, "rebate": 0.0, "category": "cigarettes"},
-  {"brand": "MARL 72's MENTHOL (GROUP B) (4336970)", "invoice": 95.4, "rebate": 6.5, "category": "cigarettes"},
-  {"brand": "MARL 72's (4337044)", "invoice": 90.4, "rebate": 6.5, "category": "cigarettes"},
-  {"brand": "MARL BLACK Non Menthol / GOLD LABEL (4965299)", "invoice": 85.91, "rebate": 15.5, "category": "cigarettes"},
-  {"brand": "MARL BLACK Menthol (4357620)", "invoice": 85.91, "rebate": 15.5, "category": "cigarettes"},
-  {"brand": "MARL SP BLND (Special Select) (4355046)", "invoice": 90.4, "rebate": 5.5, "category": "cigarettes"},
-  {"brand": "MARL COWBOY CUT", "invoice": 76.04, "rebate": 20.5, "category": "cigarettes"},
-  {"brand": "L & M (4336947)", "invoice": 88.91, "rebate": 4.5, "category": "cigarettes"},
-  {"brand": "KOOL (4361689)", "invoice": 92.63, "rebate": 4.6, "category": "cigarettes"},
-  {"brand": "KOOL LUXE", "invoice": 86.9, "rebate": 15.5, "category": "cigarettes"},
-  {"brand": "Kool Black", "invoice": 58.75, "rebate": 8.6, "category": "cigarettes"},
-  {"brand": "WINSTON (4361887)", "invoice": 91.94, "rebate": 16.3, "category": "cigarettes"},
-  {"brand": "Winston Select", "invoice": 58.06, "rebate": 7.7, "category": "cigarettes"},
-  {"brand": "MAVERICK (4361721)", "invoice": 71.54, "rebate": 5.8, "category": "cigarettes"},
-  {"brand": "MISTY (4379020)", "invoice": 111.12, "rebate": 0.0, "category": "cigarettes"},
-  {"brand": "SALEM (ITG) (4361796)", "invoice": 109.08, "rebate": 0.0, "category": "cigarettes"},
-  {"brand": "Antage", "invoice": 133.0, "rebate": 0.0, "category": "cigarettes"},
-  {"brand": "V-Slim (4347134) / Parliament (02881522)", "invoice": 107.66, "rebate": 0.0, "category": "cigarettes"},
-  {"brand": "24x7", "invoice": 31.79, "rebate": 0.0, "category": "cigarettes"},
-  {"brand": "OLD (Newbuy down started 1/25 2026)", "invoice": 39.15, "rebate": 0.0, "category": "cigarettes"},
-  {"brand": "Seneca (4372850)", "invoice": 38.59, "rebate": 0.0, "category": "cigarettes"},
-  {"brand": "Montego", "invoice": 44.85, "rebate": 4.5, "category": "cigarettes"},
-  {"brand": "GRIZZLY WG/Mint/Dark", "invoice": 25.15, "rebate": 0.0, "category": "dip"},
-  {"brand": "GRIZZLY Straight/Natural", "invoice": 25.15, "rebate": 0.0, "category": "dip"},
-  {"brand": "GRIZZLY Nic Pouch 7mg only", "invoice": 22.17, "rebate": 0.0, "category": "dip"},
-  {"brand": "GRIZZLY Nic Pouch 2.0", "invoice": 22.17, "rebate": 0.0, "category": "dip"},
-  {"brand": "Velo", "invoice": 22.17, "rebate": 0.0, "category": "dip"},
-  {"brand": "Velo Plus", "invoice": 22.17, "rebate": 0.0, "category": "dip"},
-  {"brand": "Grizzly Snus", "invoice": 24.61, "rebate": 0.0, "category": "dip"},
-  {"brand": "Camel Snus", "invoice": 30.55, "rebate": 0.5, "category": "dip"},
-  {"brand": "Kodiak", "invoice": 30.92, "rebate": 0.25, "category": "dip"},
-  {"brand": "Cougar", "invoice": 15.69, "rebate": 0.25, "category": "dip"},
-  {"brand": "Levi Garrett", "invoice": 23.6, "rebate": 0.0, "category": "dip"},
-  {"brand": "SKOAL XTRA", "invoice": 30.43, "rebate": 0.0, "category": "dip"},
-  {"brand": "SKOAL BLENDS", "invoice": 30.43, "rebate": 0.0, "category": "dip"},
-  {"brand": "SKOAL CLASSIC", "invoice": 30.43, "rebate": 0.0, "category": "dip"},
-  {"brand": "SKOAL Snus", "invoice": 26.09, "rebate": 0.0, "category": "dip"},
-  {"brand": "COPENHAGEN Popular/ Spitfree", "invoice": 25.85, "rebate": 0.0, "category": "dip"},
-  {"brand": "COPENHAGEN Mainline", "invoice": 29.62, "rebate": 0.0, "category": "dip"},
-  {"brand": "Husky", "invoice": 12.72, "rebate": 2.5, "category": "dip"},
-  {"brand": "Red Seal", "invoice": 24.27, "rebate": 0.0, "category": "dip"},
-  {"brand": "Long horn", "invoice": 12.66, "rebate": 0.0, "category": "dip"},
-  {"brand": "Zone", "invoice": 18.93, "rebate": 0.0, "category": "dip"},
-  {"brand": "ZYN", "invoice": 5.51, "rebate": 0.0, "category": "cigarettes"},
-  {"brand": "ZYN After Dark", "invoice": 22.17, "rebate": 0.0, "category": "cigarettes"},
-  {"brand": "Alto Devices", "invoice": 37.83, "rebate": 0.0, "category": "ecig"},
-  {"brand": "Alto Singles Pod", "invoice": 30.7, "rebate": 0.0, "category": "ecig"},
-  {"brand": "Alto 2 Pod", "invoice": 62.24, "rebate": 0.0, "category": "ecig"},
-  {"brand": "Alto 4 Pod", "invoice": 100.42, "rebate": 1.0, "category": "ecig"},
-  {"brand": "Alto 6 pod", "invoice": 135.25, "rebate": 0.0, "category": "ecig"},
-  {"brand": "All in One kit", "invoice": 51.51, "rebate": 1.0, "category": "cigarettes"},
-  {"brand": "Alto Primatic kit", "invoice": 73.57, "rebate": 2.0, "category": "ecig"},
-  {"brand": "Primatic 3 pod pack", "invoice": 90.95, "rebate": 0.0, "category": "ecig"},
-  {"brand": "Sensa", "invoice": 75.47, "rebate": 3.0, "category": "ecig"},
-  {"brand": "NJOY Devices", "invoice": 36.53, "rebate": 20.0, "category": "ecig"},
-  {"brand": "NJOY Singles Pod", "invoice": 38.39, "rebate": 0.0, "category": "ecig"},
-  {"brand": "NJOY Daily", "invoice": 19.86, "rebate": 0.0, "category": "ecig"},
-  {"brand": "NJOY Device + 2 Pod", "invoice": 21.21, "rebate": 0.0, "category": "ecig"},
-  {"brand": "On!", "invoice": 18.5, "rebate": 0.0, "category": "ecig"},
-  {"brand": "On! Plus", "invoice": 22.17, "rebate": 0.0, "category": "ecig"}
-        ];
+        // Initialize - Start with Employee View (default)
+        selectMode('employee');
     </script>
 </body>
 </html>
