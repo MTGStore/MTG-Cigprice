@@ -992,14 +992,12 @@
             }
 
             // Build pricing cards
-            let html = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px;">';
+            let html = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;">';
             
             filtered.forEach(brand => {
                 const costAfterRebate = brand.invoice - brand.rebate;
                 const costPerUnit = costAfterRebate / 10;
-                
-                // Fetch retail prices from Google Sheets for this store + brand
-                const gsUrl = DEPLOYMENT_URL.replace('/exec', '') + '?store=' + encodeURIComponent(store) + '&brand=' + encodeURIComponent(brand.brand);
+                const brandId = brand.brand.replace(/[^a-z0-9]/gi, '');
                 
                 html += `
                     <div style="background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.08);">
@@ -1009,18 +1007,25 @@
                         <div style="font-size: 12px; color: #666; margin-bottom: 12px;">
                             <strong>Store:</strong> ${store}
                         </div>
-                        <div style="font-size: 13px; color: #333; margin-bottom: 8px;">
+                        <div style="font-size: 13px; color: #333; margin-bottom: 12px;">
                             <strong>Invoice:</strong> $${brand.invoice.toFixed(2)}<br>
                             <strong>Rebate:</strong> $${brand.rebate.toFixed(2)}<br>
-                            <strong>Cost after Rebate:</strong> $${costAfterRebate.toFixed(2)}<br>
                             <strong>Cost per Unit:</strong> $${costPerUnit.toFixed(2)}
                         </div>
-                        <div id="prices-${brand.brand.replace(/[^a-z0-9]/gi, '')}" style="background: #f5f5f5; padding: 12px; border-radius: 8px; font-size: 12px; color: #666;">
-                            <div style="margin-bottom: 8px;">
-                                <strong style="color: #1a3a52;">Pack Price:</strong> <span style="color: #999;">Loading...</span>
+                        <div id="prices-${brandId}" style="background: #f5f5f5; padding: 12px; border-radius: 8px; font-size: 13px; color: #333;">
+                            <div style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #ddd;">
+                                <strong style="color: #1a3a52;">Pack Price:</strong> <span style="color: #999; font-size: 11px;">Loading...</span>
                             </div>
-                            <div>
-                                <strong style="color: #1a3a52;">Carton Price:</strong> <span style="color: #999;">Loading...</span>
+                            <div style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #ddd;">
+                                <strong style="color: #1a3a52;">Carton Price:</strong> <span style="color: #999; font-size: 11px;">Loading...</span>
+                            </div>
+                            <div id="loyalty-${brandId}" style="display: none; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #ddd; background: #e3f2fd; padding: 8px; border-radius: 6px;">
+                                <strong style="color: #2c5aa0;">💳 Loyalty Price:</strong> <span id="loyalty-price-${brandId}" style="color: #2c5aa0; font-weight: 600;"></span><br>
+                                <span style="font-size: 11px; color: #1976d2;">Save <span id="loyalty-save-${brandId}"></span> with phone #</span>
+                            </div>
+                            <div id="multipack-${brandId}" style="display: none; background: #f3e5f5; padding: 8px; border-radius: 6px;">
+                                <strong style="color: #7c3aed;">📦 Multipack Price:</strong> <span id="multipack-price-${brandId}" style="color: #7c3aed; font-weight: 600;"></span><br>
+                                <span style="font-size: 11px; color: #6a1b9a;">Auto-save <span id="multipack-save-${brandId}"></span> when buying 2</span>
                             </div>
                         </div>
                         <div style="font-size: 11px; color: #999; margin-top: 8px; font-style: italic;">
@@ -1029,38 +1034,75 @@
                     </div>
                 `;
                 
-                // Fetch prices from Google Sheets
+                // Fetch prices from Google Sheets using doGet
+                const gsUrl = DEPLOYMENT_URL + '?store=' + encodeURIComponent(store) + '&brand=' + encodeURIComponent(brand.brand);
+                
                 fetch(gsUrl)
-                    .then(response => response.json())
+                    .then(response => {
+                        if (!response.ok) throw new Error('Network response was not ok');
+                        return response.json();
+                    })
                     .then(data => {
+                        const pricesDiv = document.getElementById('prices-' + brandId);
+                        
                         if (data.success && data.retailPack) {
-                            const pricesDiv = document.getElementById('prices-' + brand.brand.replace(/[^a-z0-9]/gi, ''));
-                            if (pricesDiv) {
-                                pricesDiv.innerHTML = `
-                                    <div style="margin-bottom: 8px;">
-                                        <strong style="color: #1a3a52;">Pack Price:</strong> <span style="color: #2c5aa0; font-weight: 600;">$${parseFloat(data.retailPack).toFixed(2)}</span>
-                                    </div>
-                                    <div>
-                                        <strong style="color: #1a3a52;">Carton Price:</strong> <span style="color: #2c5aa0; font-weight: 600;">$${parseFloat(data.retailCarton).toFixed(2)}</span>
+                            // Main retail prices
+                            let pricesHtml = `
+                                <div style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #ddd;">
+                                    <strong style="color: #1a3a52;">Pack Price:</strong> <span style="color: #2c5aa0; font-weight: 600;">$${parseFloat(data.retailPack).toFixed(2)}</span>
+                                </div>
+                                <div style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #ddd;">
+                                    <strong style="color: #1a3a52;">Carton Price:</strong> <span style="color: #2c5aa0; font-weight: 600;">$${parseFloat(data.retailCarton).toFixed(2)}</span>
+                                </div>
+                            `;
+                            
+                            // Loyalty pricing
+                            if (data.loyaltyDiscount && parseFloat(data.loyaltyDiscount) > 0) {
+                                const loyaltyPrice = (parseFloat(data.retailPack) - parseFloat(data.loyaltyDiscount)).toFixed(2);
+                                pricesHtml += `
+                                    <div style="display: block; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #ddd; background: #e3f2fd; padding: 8px; border-radius: 6px;">
+                                        <strong style="color: #2c5aa0;">💳 Loyalty Price:</strong> <span style="color: #2c5aa0; font-weight: 600;">$${loyaltyPrice}</span><br>
+                                        <span style="font-size: 11px; color: #1976d2;">Save $${parseFloat(data.loyaltyDiscount).toFixed(2)} each with phone #</span>
                                     </div>
                                 `;
                             }
+                            
+                            // Multipack pricing
+                            if (data.multipackDiscount && parseFloat(data.multipackDiscount) > 0) {
+                                const multipackPrice = (parseFloat(data.retailPack) - parseFloat(data.multipackDiscount)).toFixed(2);
+                                pricesHtml += `
+                                    <div style="background: #f3e5f5; padding: 8px; border-radius: 6px;">
+                                        <strong style="color: #7c3aed;">📦 Multipack Price:</strong> <span style="color: #7c3aed; font-weight: 600;">$${multipackPrice}</span><br>
+                                        <span style="font-size: 11px; color: #6a1b9a;">Auto-save $${parseFloat(data.multipackDiscount).toFixed(2)} per pack when buying 2</span>
+                                    </div>
+                                `;
+                            }
+                            
+                            pricesDiv.innerHTML = pricesHtml;
                         } else {
-                            const pricesDiv = document.getElementById('prices-' + brand.brand.replace(/[^a-z0-9]/gi, ''));
-                            if (pricesDiv) {
-                                pricesDiv.innerHTML = `
-                                    <div style="margin-bottom: 8px;">
-                                        <strong style="color: #1a3a52;">Pack Price:</strong> <span style="color: #999;">Not set</span>
-                                    </div>
-                                    <div>
-                                        <strong style="color: #1a3a52;">Carton Price:</strong> <span style="color: #999;">Not set</span>
-                                    </div>
-                                `;
-                            }
+                            pricesDiv.innerHTML = `
+                                <div style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #ddd;">
+                                    <strong style="color: #1a3a52;">Pack Price:</strong> <span style="color: #999;">Not set yet</span>
+                                </div>
+                                <div>
+                                    <strong style="color: #1a3a52;">Carton Price:</strong> <span style="color: #999;">Not set yet</span>
+                                </div>
+                            `;
                         }
                     })
                     .catch(error => {
-                        console.log('Error fetching prices:', error);
+                        console.log('Error fetching prices for ' + brand.brand + ':', error);
+                        const pricesDiv = document.getElementById('prices-' + brandId);
+                        if (pricesDiv) {
+                            pricesDiv.innerHTML = `
+                                <div style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #ddd;">
+                                    <strong style="color: #1a3a52;">Pack Price:</strong> <span style="color: #ccc; font-size: 11px;">Unable to load</span>
+                                </div>
+                                <div>
+                                    <strong style="color: #1a3a52;">Carton Price:</strong> <span style="color: #ccc; font-size: 11px;">Unable to load</span>
+                                </div>
+                            `;
+                        }
                     });
             });
             
