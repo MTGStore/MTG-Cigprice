@@ -757,7 +757,7 @@
   {"brand": "On! Plus", "invoice": 22.17, "rebate": 0.0, "category": "ecig"}
         ];
 
-        const DEPLOYMENT_URL = "https://script.google.com/macros/s/AKfycbxahrV8U7Y-lKNAofh-hy9eH_86Mp2AkMOhEIK03_MccQS0iYc6YcJ09jHK2E0r-SyU/exec";
+        const DEPLOYMENT_URL = "PASTE_YOUR_GOOGLE_APPS_SCRIPT_DEPLOYMENT_URL_HERE";
 
         // Brand data reference
         const brandData = BRANDS_DATA_PLACEHOLDER;
@@ -998,6 +998,9 @@
                 const costAfterRebate = brand.invoice - brand.rebate;
                 const costPerUnit = costAfterRebate / 10;
                 
+                // Fetch retail prices from Google Sheets for this store + brand
+                const gsUrl = DEPLOYMENT_URL.replace('/exec', '') + '?store=' + encodeURIComponent(store) + '&brand=' + encodeURIComponent(brand.brand);
+                
                 html += `
                     <div style="background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.08);">
                         <div style="font-weight: 600; font-size: 14px; color: #1a3a52; margin-bottom: 12px; border-bottom: 2px solid #2c5aa0; padding-bottom: 8px;">
@@ -1012,12 +1015,12 @@
                             <strong>Cost after Rebate:</strong> $${costAfterRebate.toFixed(2)}<br>
                             <strong>Cost per Unit:</strong> $${costPerUnit.toFixed(2)}
                         </div>
-                        <div style="background: #f5f5f5; padding: 12px; border-radius: 8px; font-size: 12px; color: #666;">
+                        <div id="prices-${brand.brand.replace(/[^a-z0-9]/gi, '')}" style="background: #f5f5f5; padding: 12px; border-radius: 8px; font-size: 12px; color: #666;">
                             <div style="margin-bottom: 8px;">
-                                <strong style="color: #1a3a52;">Pack Price:</strong> <span style="color: #2c5aa0; font-weight: 600;">Check POS for current retail</span>
+                                <strong style="color: #1a3a52;">Pack Price:</strong> <span style="color: #999;">Loading...</span>
                             </div>
                             <div>
-                                <strong style="color: #1a3a52;">Carton Price:</strong> <span style="color: #2c5aa0; font-weight: 600;">Check POS for current retail</span>
+                                <strong style="color: #1a3a52;">Carton Price:</strong> <span style="color: #999;">Loading...</span>
                             </div>
                         </div>
                         <div style="font-size: 11px; color: #999; margin-top: 8px; font-style: italic;">
@@ -1025,6 +1028,40 @@
                         </div>
                     </div>
                 `;
+                
+                // Fetch prices from Google Sheets
+                fetch(gsUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success && data.retailPack) {
+                            const pricesDiv = document.getElementById('prices-' + brand.brand.replace(/[^a-z0-9]/gi, ''));
+                            if (pricesDiv) {
+                                pricesDiv.innerHTML = `
+                                    <div style="margin-bottom: 8px;">
+                                        <strong style="color: #1a3a52;">Pack Price:</strong> <span style="color: #2c5aa0; font-weight: 600;">$${parseFloat(data.retailPack).toFixed(2)}</span>
+                                    </div>
+                                    <div>
+                                        <strong style="color: #1a3a52;">Carton Price:</strong> <span style="color: #2c5aa0; font-weight: 600;">$${parseFloat(data.retailCarton).toFixed(2)}</span>
+                                    </div>
+                                `;
+                            }
+                        } else {
+                            const pricesDiv = document.getElementById('prices-' + brand.brand.replace(/[^a-z0-9]/gi, ''));
+                            if (pricesDiv) {
+                                pricesDiv.innerHTML = `
+                                    <div style="margin-bottom: 8px;">
+                                        <strong style="color: #1a3a52;">Pack Price:</strong> <span style="color: #999;">Not set</span>
+                                    </div>
+                                    <div>
+                                        <strong style="color: #1a3a52;">Carton Price:</strong> <span style="color: #999;">Not set</span>
+                                    </div>
+                                `;
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.log('Error fetching prices:', error);
+                    });
             });
             
             html += '</div>';
